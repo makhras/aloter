@@ -87,7 +87,7 @@ export default {
   },
   computed: {
     formattedBirthday() {
-      return format(new Date(this.birthday), 'PP')
+      return format(new Date(this.birthday), 'PP').toLocaleLowerCase()
     }
   },
   methods: {
@@ -226,8 +226,7 @@ canvas.dots {
 
 @font-face {
   font-family: 'Patrick Hand';
-  src: url('./PatrickHand-Regular.woff'),
-       url('./PatrickHand-Regular.ttf');
+  src: url('./PatrickHand-Regular.woff');
 }
 
 .menu {
@@ -248,12 +247,12 @@ canvas.dots {
 .block, .q-item {
   text-transform: uppercase;
   font-family: 'Patrick Hand';
-  font-size: 1.14rem;
+  font-size: 1.1rem;
 }
 
 .info {
   font-size: 0.55rem;
-  color: #303030;
+  color: #141414;
   opacity: 0.5;
   position: absolute;
   bottom: 0;
