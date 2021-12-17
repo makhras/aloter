@@ -6,20 +6,35 @@
           <q-card class="my-card">
             <q-card-section>
               <div class="text-h6">Aloter</div>
-              <div class="text-subtitle2">by M. Akhras</div>
+              <div class="text-subtitle2">{{$t('by')}} M. Akhras</div>
             </q-card-section>
             <q-card-section>
-              Comprehend your time allottance.
+              {{ $t('slogan') }}
             </q-card-section>
             <q-card-section>
-              <a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">More Info (repo)</a>
+              <a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">{{$t('moreInfo')}} (repo)</a>
             </q-card-section>
+            <q-card-actions>
+              <q-btn rounded color="primary" icon="public" :label="langLabel" class="q-px-sm" >
+                <q-menu>
+                  <q-list style="min-width: 100px">
+                    <q-item clickable v-close-popup @click="setLang('en')">
+                      <q-item-section>{{$t('english')}}</q-item-section>
+                    </q-item>
+                    <q-separator />
+                    <q-item clickable v-close-popup @click="setLang('es')">
+                      <q-item-section>{{$t('spanish')}}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
           </q-card>
         </q-popup-proxy>
       </q-btn>
       <div class="menubar">
         <span class="btn">
-          {{years + ' años'}}
+          {{`${years} ${$t('years')}`}}
           <q-menu>
             <q-list>
               <q-item
@@ -35,7 +50,7 @@
             </q-list>
           </q-menu>
         </span>
-        <span>en</span>
+        <span>{{$t('in')}}</span>
         <span class="btn">
           {{modeLabel}}
           <q-menu>
@@ -48,12 +63,12 @@
                 v-close-popup
                 @click="modeSelected(m)"
               >
-                <q-item-section>{{ m.label }}</q-item-section>
+                <q-item-section>{{ $t(m.label) }}</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
         </span>
-        <span>desde</span>
+        <span>{{$t('since')}}</span>
         <span class="btn">
           {{formattedBirthday}}
           <q-popup-proxy>
@@ -61,6 +76,7 @@
               v-model="birthday"
               landscape
               minimal
+              :locale="currentLocale"
               @update:model-value="birthdaySelected"
             />
           </q-popup-proxy>
@@ -70,19 +86,19 @@
         <q-popup-proxy>
           <q-list class="q-pb-md">
             <q-item-label header class="patrick md" >
-              Share
+              {{$t('share')}}
             </q-item-label>
             <q-item dense clickable v-ripple>
               <q-item-section side>
                 <q-icon name="mail_outline" />
               </q-item-section>
-              <q-item-section>By Email</q-item-section>
+              <q-item-section>{{$t('byEmail')}}</q-item-section>
             </q-item>
             <q-item dense clickable v-ripple>
               <q-item-section side>
                 <q-icon name="content_copy" />
               </q-item-section>
-              <q-item-section>Copy Link</q-item-section>
+              <q-item-section>{{$t('copyLink')}}</q-item-section>
             </q-item>
           </q-list>
         </q-popup-proxy>
@@ -97,12 +113,40 @@
 
 <script>
 import { format, differenceInDays, differenceInWeeks, differenceInMonths, differenceInYears } from 'date-fns'
+import moment from 'moment/min/moment-with-locales'
 import { get, set } from 'idb-keyval'
+// import 'moment/locale/es'
 
 export default {
   data() {
     return {
       lang: 'en',
+      languages: [
+        {
+          id: 'en',
+          label: 'english'
+        },
+        {
+          id: 'es',
+          label: 'spanish'
+        },
+      ],
+      esLocale: {
+        /* starting with Sunday */
+        days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
+        daysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_'),
+        months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+        monthsShort: 'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split('_'),
+        firstDayOfWeek: 1
+      },
+      enLocale: {
+        /* starting with Sunday */
+        days: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
+        daysShort: 'Sun_Mon_Tue_Wed_Thu_fri_Sat'.split('_'),
+        months: 'January_Febrary_March_April_May_June_July_August_September_October_November_December'.split('_'),
+        monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
+        firstDayOfWeek: 1
+      },
       total: 0,
       livedUnits: 0,
       birthday: '1992/04/14',
@@ -143,7 +187,7 @@ export default {
     this.context = this.canvas.getContext('2d');
 
     this.resizeCanvas()
-    
+    this.getLocale()
     this.getBirthday(this.$route.query.b || this.$route.query.c)
     this.getMode(this.$route.query.m)
     this.getYears(this.$route.query.t || this.$route.query.y || this.$route.query.a)
@@ -152,14 +196,42 @@ export default {
     
   },
   computed: {
+    currentLocale() {
+      switch (this.lang){
+        case 'en':
+          return this.enLocale
+        case 'es':
+          return this.esLocale
+        }
+    },
     formattedBirthday() {
-      return format(new Date(this.birthday), 'PP').toLocaleLowerCase()
+      return moment(new Date(this.birthday)).format('YYYY MMM DD')
     },
     modeLabel() {
-      return this.modes.find(m=>m.id == this.mode).label
+      return this.$t(this.modes.find(m=>m.id == this.mode).label)
     },
+    langLabel() {
+      return this.$t(this.languages.find(l=>l.id == this.lang).label)
+    }
   },
   methods: {
+    setLang(newLang) {
+      this.lang = newLang
+      this.$i18n.locale = newLang
+      moment.locale(this.lang)
+      set('locale', this.lang)
+    },
+    async getLocale() {
+      const savedLocale = await get('locale')
+      moment.locale(savedLocale)
+      console.log('savedLocale: ', savedLocale);
+      if (savedLocale) {
+        this.lang = savedLocale
+        this.$i18n.locale = this.lang
+      } else {
+        this.$i18n.locale = 'en'
+      }
+    },
     async getBirthday(query) {
       console.log('query: ', query);
       if (query) {
@@ -197,25 +269,35 @@ export default {
     },
     drawCanvas() {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+      
+      const differenceBetweenDates = (dateBirth, dateNow, unit) => {
+        return moment(dateBirth).diff(moment(dateNow), unit, true)
+      }
+
+      const newDate = new Date()
+      const birthDate = new Date(this.birthday)
+
       switch (this.mode) {
         case 'm':
           this.total = this.years * 12
-          this.livedUnits = differenceInMonths(new Date(), new Date(this.birthday))
+          // this.livedUnits = differenceInMonths(new Date(), new Date(this.birthday))
+          this.livedUnits = differenceBetweenDates(newDate, birthDate, 'months')
           break;
         case 's':
         case 'w':
           this.total = this.years * 12 * 4
-          this.livedUnits = differenceInWeeks(new Date(), new Date(this.birthday))
+          this.livedUnits = differenceBetweenDates(newDate, birthDate, 'weeks')
+          console.log('lived: ', this.livedUnits);
           break;
         case 'd':
           this.total = this.years * 12 * 4 * 7
-          this.livedUnits = differenceInDays(new Date(), new Date(this.birthday))
+          this.livedUnits = differenceBetweenDates(newDate, birthDate, 'days')
           break;
         case 'a':
         case 'y':
         case 't':
         default:
-          this.livedUnits = differenceInYears(new Date(), new Date(this.birthday))
+          this.livedUnits = differenceBetweenDates(newDate, birthDate, 'years')
           this.total = this.years
           break;
       }
