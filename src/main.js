@@ -1,19 +1,28 @@
 import { createApp } from 'vue'
 import { Quasar } from 'quasar'
+import { createRouter, createWebHistory } from 'vue-router'
 
-// Import icon libraries
 import '@quasar/extras/roboto-font/roboto-font.css'
 import '@quasar/extras/material-icons/material-icons.css'
 
-// Import Quasar css
 import 'quasar/src/css/index.sass'
 
+import Home from './components/Home.vue'
 import App from './App.vue'
 
-const myApp = createApp(App)
-
-myApp.use(Quasar, {
-  plugins: {},
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: Home },
+    // { path: '/about', component: About },
+  ],
 })
 
-myApp.mount('#app')
+const app = createApp(App)
+
+app.use(Quasar, {
+  plugins: {},
+})
+app.use(router)
+
+app.mount('#app')

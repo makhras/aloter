@@ -1,6 +1,22 @@
 <template>
   <div class="container">
     <q-toolbar class="bg-transparent">
+      <q-btn round dense icon="circle">
+        <q-popup-proxy>
+          <q-card class="my-card">
+            <q-card-section>
+              <div class="text-h6">Aloter</div>
+              <div class="text-subtitle2">by M. Akhras</div>
+            </q-card-section>
+            <q-card-section>
+              Comprehend your time allottance.
+            </q-card-section>
+            <q-card-section>
+              <a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">More Info (repo)</a>
+            </q-card-section>
+          </q-card>
+        </q-popup-proxy>
+      </q-btn>
       <div class="menu">
         <span class="btn">
           {{years + ' años'}}
@@ -83,7 +99,7 @@ export default {
     this.resizeCanvas()
 
     window.addEventListener('resize', this.resizeCanvas, false);
-
+    console.log('ruta: ', this.$route);
   },
   computed: {
     formattedBirthday() {
@@ -92,6 +108,7 @@ export default {
   },
   methods: {
     drawCanvas() {
+      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       switch (this.mode) {
         case 'Meses':
           this.total = this.years * 12
@@ -180,12 +197,10 @@ export default {
     },
     yearsSelected (submission) {
       this.years = submission;
-      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.drawCanvas()
     },
     modeSelected (submission) {
       this.mode = submission;
-      this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       this.drawCanvas()
     },
     debounce (func, wait, immediate) {
@@ -233,9 +248,11 @@ canvas.dots {
 .menu {
   margin: auto;
   font-family: 'Patrick Hand', Arial, Helvetica, sans-serif;
-  font-size: 1.3rem;
+  font-size: 1rem;
   user-select: none;
   text-transform: uppercase;
+  padding-left: 1em;
+  border-bottom: 1px dashed dimgray;
   span {
     margin-right: 1rem;
     &.btn {
