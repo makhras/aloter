@@ -23,7 +23,7 @@ To start development
 ```sh
 $ yarn dev
 ```
-Then navigate to http://loclahost:3000
+Then navigate to http://localhost:3000
 
 
 
