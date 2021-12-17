@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <q-toolbar class="bg-transparent">
-      <q-btn round dense icon="circle">
+      <q-btn round flat dense icon="circle">
         <q-popup-proxy>
           <q-card class="my-card">
             <q-card-section>
@@ -17,7 +17,7 @@
           </q-card>
         </q-popup-proxy>
       </q-btn>
-      <div class="menu">
+      <div class="menubar">
         <span class="btn">
           {{years + ' años'}}
           <q-menu>
@@ -37,18 +37,18 @@
         </span>
         <span>en</span>
         <span class="btn">
-          {{mode}}
+          {{modeLabel}}
           <q-menu>
             <q-list style="min-width: 100px">
               <q-item
                 dense
                 v-for="m in modes"
-                :key="m"
+                :key="'mode-'+m.id"
                 clickable
                 v-close-popup
                 @click="modeSelected(m)"
               >
-                <q-item-section>{{ m }}</q-item-section>
+                <q-item-section>{{ m.label }}</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
@@ -61,10 +61,32 @@
               v-model="birthday"
               landscape
               minimal
+              @update:model-value="birthdaySelected"
             />
           </q-popup-proxy>
         </span>
       </div>
+      <q-btn flat round dense icon="send">
+        <q-popup-proxy>
+          <q-list class="q-pb-md">
+            <q-item-label header class="patrick md" >
+              Share
+            </q-item-label>
+            <q-item dense clickable v-ripple>
+              <q-item-section side>
+                <q-icon name="mail_outline" />
+              </q-item-section>
+              <q-item-section>By Email</q-item-section>
+            </q-item>
+            <q-item dense clickable v-ripple>
+              <q-item-section side>
+                <q-icon name="content_copy" />
+              </q-item-section>
+              <q-item-section>Copy Link</q-item-section>
+            </q-item>
+          </q-list>
+        </q-popup-proxy>
+      </q-btn>
     </q-toolbar>
     <canvas id="dots">Your browser does not support canvas.</canvas>
     <div class="info">
@@ -75,15 +97,38 @@
 
 <script>
 import { format, differenceInDays, differenceInWeeks, differenceInMonths, differenceInYears } from 'date-fns'
+import { get, set } from 'idb-keyval'
+
 export default {
   data() {
     return {
+      lang: 'en',
       total: 0,
       livedUnits: 0,
       birthday: '1992/04/14',
       canvas: null,
-      mode: "Semanas",
-      modes: ["Años", "Meses", "Semanas", "Dias"],
+      mode: "w",
+      modes: [
+        {
+          id: 'y',
+          label: 'years'
+        },
+        {
+          id: 'm',
+          label: 'months'
+        },
+        {
+          id: 'w',
+          label: 'weeks'
+        },
+        {
+          id: {
+            en: 'd',
+            es: 'd',
+          },
+          label: 'days'
+        },
+      ],
       years: 80,
       allYears: [10, 20, 30, 40, 50, 60, 70, 80, 90],
       colors: ['#303030', '#858585', '#2BAD5D', '#2ABABF', '#CDDC28', '#B91E8C'],
@@ -96,32 +141,79 @@ export default {
   mounted () {
     this.canvas = document.getElementById('dots');
     this.context = this.canvas.getContext('2d');
+
     this.resizeCanvas()
+    
+    this.getBirthday(this.$route.query.b || this.$route.query.c)
+    this.getMode(this.$route.query.m)
+    this.getYears(this.$route.query.t || this.$route.query.y || this.$route.query.a)
 
     window.addEventListener('resize', this.resizeCanvas, false);
-    console.log('ruta: ', this.$route);
+    
   },
   computed: {
     formattedBirthday() {
       return format(new Date(this.birthday), 'PP').toLocaleLowerCase()
-    }
+    },
+    modeLabel() {
+      return this.modes.find(m=>m.id == this.mode).label
+    },
   },
   methods: {
+    async getBirthday(query) {
+      console.log('query: ', query);
+      if (query) {
+        this.birthday = query.substring(0,4) + '/' + query.substring(4,6) + '/' + query.substring(6,8)
+      } else {
+        const savedBirthday = await get('birthday')
+        if (savedBirthday) {
+          this.birthday = savedBirthday
+        }
+        console.log('savedBirthday ', savedBirthday);
+      }
+    },
+    async getMode(query) {
+      if (query) {
+        this.mode = query
+      } else {
+        const savedMode = await get('mode')
+        if (savedMode) {
+          this.mode = savedMode
+        }
+        console.log('savedMode ', savedMode);
+      }
+    },
+    async getYears(query) {
+      if (query) {
+        this.years = query
+        console.log('this.years', this.years);
+      } else {
+        const savedYears = await get('years')
+        if (savedYears) {
+          this.years = savedYears
+        }
+        console.log('savedYears ', savedYears);
+      }
+    },
     drawCanvas() {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       switch (this.mode) {
-        case 'Meses':
+        case 'm':
           this.total = this.years * 12
           this.livedUnits = differenceInMonths(new Date(), new Date(this.birthday))
           break;
-        case 'Semanas':
+        case 's':
+        case 'w':
           this.total = this.years * 12 * 4
           this.livedUnits = differenceInWeeks(new Date(), new Date(this.birthday))
           break;
-        case 'Dias':
+        case 'd':
           this.total = this.years * 12 * 4 * 7
           this.livedUnits = differenceInDays(new Date(), new Date(this.birthday))
           break;
+        case 'a':
+        case 'y':
+        case 't':
         default:
           this.livedUnits = differenceInYears(new Date(), new Date(this.birthday))
           this.total = this.years
@@ -197,11 +289,15 @@ export default {
     },
     yearsSelected (submission) {
       this.years = submission;
-      this.drawCanvas()
+      this.$router.replace({query: {...this.$route.query, t: this.years}})
     },
     modeSelected (submission) {
-      this.mode = submission;
-      this.drawCanvas()
+      this.mode = submission.id;
+      this.$router.replace({query: {...this.$route.query, m: this.mode}})
+    },
+    birthdaySelected(newBday) {
+      const urlifiedBday = newBday.substring(0,4) + newBday.substring(5,7) + newBday.substring(8,10)
+      this.$router.replace({query: {...this.$route.query, b: urlifiedBday}})
     },
     debounce (func, wait, immediate) {
       var timeout;
@@ -219,8 +315,21 @@ export default {
     }
   },
   watch: {
-    birthday() {
+    birthday(newBday) {
+      set('birthday', newBday)
       this.drawCanvas()
+    },
+    years(newYears) {
+      set('years', newYears)
+      this.drawCanvas()
+    },
+    mode(newMode) {
+      set('mode', newMode)
+      this.drawCanvas()
+    },
+    $route (to, from) {
+      console.log('from: ', from);
+      console.log('to: ', to);
     }
   }
 };
@@ -245,14 +354,14 @@ canvas.dots {
        url('./PatrickHand-Regular.tff');
 }
 
-.menu {
+.menubar {
   margin: auto;
   font-family: 'Patrick Hand', Arial, Helvetica, sans-serif;
   font-size: 1rem;
   user-select: none;
   text-transform: uppercase;
   padding-left: 1em;
-  border-bottom: 1px dashed dimgray;
+  // border-bottom: 1px dashed dimgray;
   span {
     margin-right: 1rem;
     &.btn {
@@ -261,9 +370,15 @@ canvas.dots {
     }
   }
 }
+.patrick {
+  font-family: 'Patrick Hand';
+  &.md {
+    font-size: 1.2rem;
+  }
+}
 
 .block, .q-item {
-  text-transform: uppercase;
+  // text-transform: uppercase;
   font-family: 'Patrick Hand';
   font-size: 1.1rem;
 }
