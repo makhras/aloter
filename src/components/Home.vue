@@ -232,7 +232,7 @@ canvas.dots {
 
 .menu {
   margin: auto;
-  font-family: 'Patrick Hand';
+  font-family: 'Patrick Hand', Arial, Helvetica, sans-serif;
   font-size: 1.3rem;
   user-select: none;
   text-transform: uppercase;
