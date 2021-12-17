@@ -224,6 +224,12 @@ canvas.dots {
   height: 100%;
 }
 
+@font-face {
+  font-family: 'Patrick Hand';
+  src: url('./PatrickHand-Regular.woff'),
+       url('./PatrickHand-Regular.ttf');
+}
+
 .menu {
   margin: auto;
   font-family: 'Patrick Hand';
