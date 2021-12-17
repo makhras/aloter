@@ -226,7 +226,8 @@ canvas.dots {
 
 @font-face {
   font-family: 'Patrick Hand';
-  src: url('./PatrickHand-Regular.woff');
+  src: url('./PatrickHand-Regular.woff'),
+       url('./PatrickHand-Regular.tff');
 }
 
 .menu {
