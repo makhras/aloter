@@ -69,7 +69,7 @@ export default {
       mode: "Semanas",
       modes: ["Años", "Meses", "Semanas", "Dias"],
       years: 80,
-      allYears: [60, 70, 80, 90],
+      allYears: [10, 20, 30, 40, 50, 60, 70, 80, 90],
       colors: ['#303030', '#858585', '#2BAD5D', '#2ABABF', '#CDDC28', '#B91E8C'],
       dotMargin: 2,
       rows: 0,
@@ -154,7 +154,14 @@ export default {
           // const y = (i * dotDiameter) + this.dotMargin + dotRadius;
           // Grab a random color from the array.
           // const color = this.colors[Math.floor(i % this.colors.length)];
-          const color = count > this.livedUnits ? this.colors[0] : this.colors[1]
+          let color = '#ffffff'
+          if (count > this.livedUnits) {
+            color = this.colors[0]
+          } else if (count > this.total) {
+            color = '#ffffff'
+          } else {
+            color = this.colors[1]
+          }
           this.drawDot(x, y, dotRadius, color);
           count++;
         }
