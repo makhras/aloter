@@ -92,7 +92,7 @@
         </span>
       </div>
       <div>
-        <span class="btn">
+        <q-btn rounded outline dense size="0.7rem" class="btn modeBtn">
           {{modeLabel}}
           <q-menu anchor="bottom middle" self="top middle">
             <q-list style="min-width: 100px">
@@ -109,7 +109,7 @@
               </q-item>
             </q-list>
           </q-menu>
-        </span>
+        </q-btn>
       </div>
     </q-toolbar>
     <canvas id="dots">Your browser does not support canvas.</canvas>
@@ -442,7 +442,7 @@ canvas.dots {
 .menubar {
   margin: auto;
   font-family: $patrick-hand;
-  font-size: 1rem;
+  font-size: 1.2rem;
   user-select: none;
   text-transform: uppercase;
   padding-left: 1em;
@@ -486,5 +486,9 @@ canvas.dots {
     color: rgba(0, 0, 0, 0.333);
     cursor: default;
   }
+}
+
+.modeBtn {
+  padding: 0.05rem 0.4rem 0rem 0.4rem;
 }
 </style>
