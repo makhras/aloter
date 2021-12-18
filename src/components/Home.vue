@@ -8,6 +8,31 @@
               <div class="text-h6">Aloter</div>
               <div class="text-subtitle2">{{$t('by')}} M. Akhras</div>
             </q-card-section>
+            <q-card-section side>
+              <q-btn flat round dense icon="send">
+                <q-popup-proxy>
+                  <q-card class="my-card">
+                    <q-list class="q-pb-md">
+                      <q-item dense clickable v-ripple>
+                        <q-item-label header class="patrick md" >
+                          {{$t('share')}}???
+                        </q-item-label>
+                        <q-item-section side>
+                          <q-icon name="mail_outline" />
+                        </q-item-section>
+                        <q-item-section>{{$t('byEmail')}}</q-item-section>
+                      </q-item>
+                      <q-item dense clickable v-ripple>
+                        <q-item-section side>
+                          <q-icon name="content_copy" />
+                        </q-item-section>
+                        <q-item-section>{{$t('copyLink')}}</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-card>
+                </q-popup-proxy>
+              </q-btn>
+            </q-card-section>
             <q-card-section>
               {{ $t('slogan') }}
             </q-card-section>
@@ -35,7 +60,7 @@
       <div class="menubar">
         <span class="btn">
           {{`${years} ${$t('years')}`}}
-          <q-menu>
+          <q-menu fit anchor="bottom left" self="top left" >
             <q-list>
               <q-item
                 dense
@@ -44,35 +69,19 @@
                 clickable
                 v-close-popup
                 @click="yearsSelected(y)"
+                :class="years==y?'yearItem active':'yearItem'"
               >
                 <q-item-section>{{ y }}</q-item-section>
               </q-item>
             </q-list>
           </q-menu>
         </span>
-        <span>{{$t('in')}}</span>
-        <span class="btn">
-          {{modeLabel}}
-          <q-menu>
-            <q-list style="min-width: 100px">
-              <q-item
-                dense
-                v-for="m in modes"
-                :key="'mode-'+m.id"
-                clickable
-                v-close-popup
-                @click="modeSelected(m)"
-              >
-                <q-item-section>{{ $t(m.label) }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </span>
-        <span>{{$t('since')}}</span>
+        <span>{{$t('from')}}</span>
         <span class="btn">
           {{formattedBirthday}}
           <q-popup-proxy>
             <q-date
+              dense
               v-model="birthday"
               landscape
               minimal
@@ -82,27 +91,26 @@
           </q-popup-proxy>
         </span>
       </div>
-      <q-btn flat round dense icon="send">
-        <q-popup-proxy>
-          <q-list class="q-pb-md">
-            <q-item-label header class="patrick md" >
-              {{$t('share')}}
-            </q-item-label>
-            <q-item dense clickable v-ripple>
-              <q-item-section side>
-                <q-icon name="mail_outline" />
-              </q-item-section>
-              <q-item-section>{{$t('byEmail')}}</q-item-section>
-            </q-item>
-            <q-item dense clickable v-ripple>
-              <q-item-section side>
-                <q-icon name="content_copy" />
-              </q-item-section>
-              <q-item-section>{{$t('copyLink')}}</q-item-section>
-            </q-item>
-          </q-list>
-        </q-popup-proxy>
-      </q-btn>
+      <div>
+        <span class="btn">
+          {{modeLabel}}
+          <q-menu anchor="bottom middle" self="top middle">
+            <q-list style="min-width: 100px">
+              <q-item
+                dense
+                v-for="m in modes"
+                :key="'mode-'+m.id"
+                clickable
+                v-close-popup
+                @click="modeSelected(m)"
+                :class="mode==m.id?'modeItem active':'modeItem'"
+              >
+                <q-item-section>{{ $t(m.label) }}</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </span>
+      </div>
     </q-toolbar>
     <canvas id="dots">Your browser does not support canvas.</canvas>
     <div class="info">
@@ -166,10 +174,7 @@ export default {
           label: 'weeks'
         },
         {
-          id: {
-            en: 'd',
-            es: 'd',
-          },
+          id: 'd',
           label: 'days'
         },
       ],
@@ -205,7 +210,7 @@ export default {
         }
     },
     formattedBirthday() {
-      return moment(new Date(this.birthday)).format('YYYY MMM DD')
+      return moment(new Date(this.birthday)).format('DD MMM YYYY')
     },
     modeLabel() {
       return this.$t(this.modes.find(m=>m.id == this.mode).label)
@@ -369,12 +374,12 @@ export default {
       this.context.fillStyle = color;
       this.context.fill();
     },
-    yearsSelected (submission) {
-      this.years = submission;
+    yearsSelected (years) {
+      this.years = years;
       this.$router.replace({query: {...this.$route.query, t: this.years}})
     },
-    modeSelected (submission) {
-      this.mode = submission.id;
+    modeSelected (mode) {
+      this.mode = mode.id;
       this.$router.replace({query: {...this.$route.query, m: this.mode}})
     },
     birthdaySelected(newBday) {
@@ -418,6 +423,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap');
+$patrick-hand: 'Patrick Hand SC', cursive, Avenir, Helvetica, sans-serif;
+
 .container {
   margin: 0;
   padding: 0;
@@ -430,15 +439,9 @@ canvas.dots {
   height: 100%;
 }
 
-@font-face {
-  font-family: 'Patrick Hand';
-  src: url('/assets/PatrickHand-Regular.woff'),
-       url('/assets/PatrickHand-Regular.tff');
-}
-
 .menubar {
   margin: auto;
-  font-family: 'Patrick Hand', Arial, Helvetica, sans-serif;
+  font-family: $patrick-hand;
   font-size: 1rem;
   user-select: none;
   text-transform: uppercase;
@@ -453,7 +456,7 @@ canvas.dots {
   }
 }
 .patrick {
-  font-family: 'Patrick Hand';
+  font-family: $patrick-hand;
   &.md {
     font-size: 1.2rem;
   }
@@ -461,7 +464,7 @@ canvas.dots {
 
 .block, .q-item {
   // text-transform: uppercase;
-  font-family: 'Patrick Hand';
+  font-family: $patrick-hand;
   font-size: 1.1rem;
 }
 
@@ -473,5 +476,15 @@ canvas.dots {
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.yearItem, .modeItem {
+  text-align: center;
+  color: #000000f6;
+  &.active {
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.333);
+    cursor: default;
+  }
 }
 </style>

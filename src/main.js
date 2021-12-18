@@ -30,7 +30,7 @@ const i18n = createI18n({
       months: 'Meses',
       weeks: 'Semanas',
       days: 'Días',
-      since: 'desde',
+      from: 'desde',
       share: 'Compartir',
       byEmail: 'Por Email',
       copyLink: 'Copiar Link'
@@ -48,7 +48,7 @@ const i18n = createI18n({
       months: 'Months',
       weeks: 'Weeks',
       days: 'Days',
-      since: 'since',
+      from: 'from',
       share: 'Share',
       byEmail: 'By Email',
       copyLink: 'Copy Link'
