@@ -1,85 +1,31 @@
 <template>
   <div class="container">
     <q-toolbar class="bg-transparent">
-      <q-btn round flat dense icon="circle">
-        <q-popup-proxy>
-          <q-card class="my-card">
-            <q-card-section>
-              <div class="text-h6">Aloter</div>
-              <div class="text-subtitle2">{{$t('by')}} M. Akhras</div>
-            </q-card-section>
-            <q-card-section side>
-              <q-btn flat round dense icon="send">
-                <q-popup-proxy>
-                  <q-card class="my-card">
-                    <q-list class="q-pb-md">
-                      <q-item dense clickable v-ripple>
-                        <q-item-label header class="patrick md" >
-                          {{$t('share')}}???
-                        </q-item-label>
-                        <q-item-section side>
-                          <q-icon name="mail_outline" />
-                        </q-item-section>
-                        <q-item-section>{{$t('byEmail')}}</q-item-section>
-                      </q-item>
-                      <q-item dense clickable v-ripple>
-                        <q-item-section side>
-                          <q-icon name="content_copy" />
-                        </q-item-section>
-                        <q-item-section>{{$t('copyLink')}}</q-item-section>
-                      </q-item>
-                    </q-list>
-                  </q-card>
-                </q-popup-proxy>
-              </q-btn>
-            </q-card-section>
-            <q-card-section>
-              {{ $t('slogan') }}
-            </q-card-section>
-            <q-card-section>
-              <a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">{{$t('moreInfo')}} (repo)</a>
-            </q-card-section>
-            <q-card-actions>
-              <q-btn rounded color="primary" icon="public" :label="langLabel" class="q-px-sm" >
-                <q-menu>
-                  <q-list style="min-width: 100px">
-                    <q-item clickable v-close-popup @click="setLang('en')">
-                      <q-item-section>{{$t('english')}}</q-item-section>
-                    </q-item>
-                    <q-separator />
-                    <q-item clickable v-close-popup @click="setLang('es')">
-                      <q-item-section>{{$t('spanish')}}</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-card-actions>
-          </q-card>
-        </q-popup-proxy>
-      </q-btn>
       <div class="menubar">
-        <span class="btn">
+        <q-btn rounded flat dense size="0.8rem" class="btn">
           {{`${years} ${$t('years')}`}}
-          <q-menu fit anchor="bottom left" self="top left" >
-            <q-list>
-              <q-item
-                dense
-                v-for="y in allYears"
-                :key="'y-' + y"
-                clickable
-                v-close-popup
-                @click="yearsSelected(y)"
-                :class="years==y?'yearItem active':'yearItem'"
-              >
-                <q-item-section>{{ y }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
-        </span>
+          <q-popup-proxy fit anchor="bottom left" self="top left" >
+            <q-card>
+              <q-list>
+                <q-item
+                  dense
+                  v-for="y in allYears"
+                  :key="'y-' + y"
+                  clickable
+                  v-close-popup
+                  @click="yearsSelected(y)"
+                  :class="years==y?'yearItem active':'yearItem'"
+                >
+                  <q-item-section>{{ y }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-card>
+          </q-popup-proxy>
+        </q-btn>
         <span>{{$t('from')}}</span>
-        <span class="btn">
+        <q-btn rounded flat dense size="0.8rem" class="btn">
           {{formattedBirthday}}
-          <q-popup-proxy>
+          <q-popup-proxy anchor="bottom middle" self="top middle">
             <q-date
               dense
               v-model="birthday"
@@ -89,28 +35,105 @@
               @update:model-value="birthdaySelected"
             />
           </q-popup-proxy>
-        </span>
-      </div>
-      <div>
-        <q-btn rounded outline dense size="0.7rem" class="btn modeBtn">
+        </q-btn>
+        <span>{{$t('in')}}</span>
+        <q-btn rounded flat dense size="0.8rem" class="btn modeBtn">
           {{modeLabel}}
-          <q-menu anchor="bottom middle" self="top middle">
-            <q-list style="min-width: 100px">
-              <q-item
-                dense
-                v-for="m in modes"
-                :key="'mode-'+m.id"
-                clickable
-                v-close-popup
-                @click="modeSelected(m)"
-                :class="mode==m.id?'modeItem active':'modeItem'"
-              >
-                <q-item-section>{{ $t(m.label) }}</q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
+          <q-popup-proxy anchor="bottom middle" self="top middle">
+            <q-card>
+              <q-list style="min-width: 100px">
+                <q-item
+                  dense
+                  v-for="m in modes"
+                  :key="'mode-'+m.id"
+                  clickable
+                  v-close-popup
+                  @click="modeSelected(m)"
+                  :class="mode==m.id?'modeItem active':'modeItem'"
+                >
+                  <q-item-section>{{ $t(m.label) }}</q-item-section>
+                </q-item>
+              </q-list>
+            </q-card>
+          </q-popup-proxy>
         </q-btn>
       </div>
+      <q-btn round flat dense size="0.8rem" icon="scatter_plot" class="menuBtn">
+        <q-popup-proxy>
+          <q-card class="my-card">
+            <q-card-section>
+              <div class="flex">
+                <div class="text-h6">Aloter</div>
+                <q-space />
+                <q-btn flat round dense icon="send">
+                  <q-popup-proxy>
+                    <q-card class="my-card">
+                      <q-list class="q-pb-md">
+                        <q-item clickable v-ripple>
+                          <q-item-label header class="patrick md" >
+                            {{$t('share')}}???
+                          </q-item-label>
+                          <q-item-section side>
+                            <q-icon name="mail_outline" />
+                          </q-item-section>
+                          <q-item-section>{{$t('byEmail')}}</q-item-section>
+                        </q-item>
+                        <q-item clickable v-ripple>
+                          <q-item-section side>
+                            <q-icon name="content_copy" />
+                          </q-item-section>
+                          <q-item-section>{{$t('copyLink')}}</q-item-section>
+                        </q-item>
+                        <q-item clickable v-ripple>
+                          <q-item-section side>
+                            <q-icon name="download" />
+                          </q-item-section>
+                          <q-item-section>{{$t('downloadImage')}}</q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-card>
+                  </q-popup-proxy>
+                  <q-tooltip :delay="500" self="center right" anchor="center left">
+                    {{$t('share')}}
+                  </q-tooltip>
+                </q-btn>
+              </div>
+              {{ $t('slogan') }}
+            </q-card-section>
+            <q-list>
+              <q-item tag="label">
+                <q-item-section side >
+                  <q-toggle v-model="coloredDots" val="paint" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{$t('coloredDots')}}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable>
+                <q-item-section>
+                  <div class="text-center">
+                    <q-icon name="public"/> {{langLabel}}
+                  </div>
+                </q-item-section>
+                <q-menu fit>
+                  <q-list class="text-center">
+                    <q-item clickable v-close-popup :class="lang==='en'?'modeItem active':'modeItem'" @click="setLang('en')">
+                      <q-item-section>{{$t('english')}}</q-item-section>
+                    </q-item>
+                    <q-separator />
+                    <q-item clickable v-close-popup :class="lang==='es'?'modeItem active':'modeItem'" @click="setLang('es')">
+                      <q-item-section>{{$t('spanish')}}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-item>
+            </q-list>
+            <q-card-section>
+              {{$t('by')}} M. Akhras (<a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">source</a>)
+            </q-card-section>
+          </q-card>
+        </q-popup-proxy>
+      </q-btn>
     </q-toolbar>
     <canvas id="dots">Your browser does not support canvas.</canvas>
     <div class="info">
@@ -150,11 +173,12 @@ export default {
       enLocale: {
         /* starting with Sunday */
         days: 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
-        daysShort: 'Sun_Mon_Tue_Wed_Thu_fri_Sat'.split('_'),
+        daysShort: 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
         months: 'January_Febrary_March_April_May_June_July_August_September_October_November_December'.split('_'),
         monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
         firstDayOfWeek: 1
       },
+      coloredDots: false,
       total: 0,
       livedUnits: 0,
       birthday: '1992/04/14',
@@ -364,8 +388,9 @@ export default {
       }
     },
     resizeCanvas () {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight - 60;
+      const maxWidth = 1080;
+      this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40;
+      this.canvas.height = window.innerHeight - 62;
       this.debounce(this.drawCanvas(), 1000, false)
     },
     drawDot (x, y, radius, color) {
@@ -424,8 +449,8 @@ export default {
 
 <style lang="scss">
 
-@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap');
-$patrick-hand: 'Patrick Hand SC', cursive, Avenir, Helvetica, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+$patrick-hand: 'Patrick Hand', cursive, Avenir, Helvetica, sans-serif;
 
 .container {
   margin: 0;
@@ -442,16 +467,17 @@ canvas.dots {
 .menubar {
   margin: auto;
   font-family: $patrick-hand;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   user-select: none;
-  text-transform: uppercase;
-  padding-left: 1em;
-  // border-bottom: 1px dashed dimgray;
+  display: flex;
   span {
-    margin-right: 1rem;
-    &.btn {
+    // padding: 0 0.5rem;
+    &.q-btn__content {
+      font-size: 1rem;
       font-weight: bold;
-      cursor: pointer;
+      padding: 0rem 0.5rem;
+      border: 1px solid rgb(41, 41, 41);
+      border-radius: 1rem;
     }
   }
 }
@@ -488,7 +514,9 @@ canvas.dots {
   }
 }
 
-.modeBtn {
-  padding: 0.05rem 0.4rem 0rem 0.4rem;
+.menuBtn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
 }
 </style>
