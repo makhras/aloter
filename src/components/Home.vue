@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <q-toolbar class="bg-transparent">
-      <div class="menubar">
+      <div :class="dark?'menubar dark':'menubar'">
         <q-btn rounded flat dense size="0.8rem" class="btn">
           {{`${years} ${$t('years')}`}}
           <q-popup-proxy fit anchor="bottom left" self="top left" >
@@ -16,7 +16,7 @@
                   @click="yearsSelected(y)"
                   :class="years==y?'yearItem active':'yearItem'"
                 >
-                  <q-item-section>{{ y }}</q-item-section>
+                  <q-item-section :class="dark?'menuLabel dark':'menuLabel'">{{ y }}</q-item-section>
                 </q-item>
               </q-list>
             </q-card>
@@ -51,7 +51,7 @@
                   @click="modeSelected(m)"
                   :class="mode==m.id?'modeItem active':'modeItem'"
                 >
-                  <q-item-section>{{ $t(m.label) }}</q-item-section>
+                  <q-item-section :class="dark?'menuLabel dark':'menuLabel'">{{ $t(m.label) }}</q-item-section>
                 </q-item>
               </q-list>
             </q-card>
@@ -98,15 +98,22 @@
                   </q-tooltip>
                 </q-btn>
               </div>
-              {{ $t('slogan') }}
             </q-card-section>
             <q-list>
               <q-item tag="label">
                 <q-item-section side >
-                  <q-toggle v-model="coloredDots" val="paint" />
+                  <q-checkbox v-model="dark"/>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{$t('coloredDots')}}</q-item-label>
+                  <q-item-label>{{$t('darkMode')}}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label">
+                <q-item-section side >
+                  <q-checkbox v-model="colored"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{$t('colors')}}</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable>
@@ -118,11 +125,11 @@
                 <q-menu fit>
                   <q-list class="text-center">
                     <q-item clickable v-close-popup :class="lang==='en'?'modeItem active':'modeItem'" @click="setLang('en')">
-                      <q-item-section>{{$t('english')}}</q-item-section>
+                      <q-item-section :class="dark?'menuLabel dark':'menuLabel'">{{$t('english')}}</q-item-section>
                     </q-item>
                     <q-separator />
                     <q-item clickable v-close-popup :class="lang==='es'?'modeItem active':'modeItem'" @click="setLang('es')">
-                      <q-item-section>{{$t('spanish')}}</q-item-section>
+                      <q-item-section :class="dark?'menuLabel dark':'menuLabel'">{{$t('spanish')}}</q-item-section>
                     </q-item>
                   </q-list>
                 </q-menu>
@@ -147,6 +154,7 @@ import { format, differenceInDays, differenceInWeeks, differenceInMonths, differ
 import moment from 'moment/min/moment-with-locales'
 import { get, set } from 'idb-keyval'
 // import 'moment/locale/es'
+// import { useQuasar } from 'quasar'
 
 export default {
   data() {
@@ -178,7 +186,9 @@ export default {
         monthsShort: 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
         firstDayOfWeek: 1
       },
-      coloredDots: false,
+      dark: false,
+      colors: false,
+      colored: false,
       total: 0,
       livedUnits: 0,
       birthday: '1992/04/14',
@@ -204,7 +214,17 @@ export default {
       ],
       years: 80,
       allYears: [10, 20, 30, 40, 50, 60, 70, 80, 90],
-      colors: ['#303030', '#858585', '#2BAD5D', '#2ABABF', '#CDDC28', '#B91E8C'],
+      colors: {
+        black: '#000000', 
+        white: '#ffffff',
+        dimBlack: '#00000080',
+        dimWhite: '#ffffff99',
+        transparent: '#00000000',
+        childhood: '#23DBF7',
+        teenhood: '#14E066',
+        adulthood: '#8800FE',
+        oldhood: '#F89716',
+      },
       dotMargin: 2,
       rows: 0,
       cols: 0,
@@ -215,11 +235,9 @@ export default {
     this.canvas = document.getElementById('dots');
     this.context = this.canvas.getContext('2d');
 
-    this.resizeCanvas()
-    this.getLocale()
-    this.getBirthday(this.$route.query.b || this.$route.query.c)
-    this.getMode(this.$route.query.m)
-    this.getYears(this.$route.query.t || this.$route.query.y || this.$route.query.a)
+    this.resizeCanvas(true)
+    this.getSettings()
+    
 
     window.addEventListener('resize', this.resizeCanvas, false);
     
@@ -250,53 +268,63 @@ export default {
       moment.locale(this.lang)
       set('locale', this.lang)
     },
-    async getLocale() {
-      const savedLocale = await get('locale')
-      moment.locale(savedLocale)
-      console.log('savedLocale: ', savedLocale);
-      if (savedLocale) {
-        this.lang = savedLocale
-        this.$i18n.locale = this.lang
-      } else {
-        this.$i18n.locale = 'en'
-      }
-    },
-    async getBirthday(query) {
-      console.log('query: ', query);
-      if (query) {
-        this.birthday = query.substring(0,4) + '/' + query.substring(4,6) + '/' + query.substring(6,8)
+    async getSettings() {
+      const birthdayQuery = this.$route.query.b || this.$route.query.c
+      if (birthdayQuery) {
+        this.birthday = birthdayQuery.substring(0,4) + '/' + birthdayQuery.substring(4,6) + '/' + birthdayQuery.substring(6,8)
       } else {
         const savedBirthday = await get('birthday')
         if (savedBirthday) {
           this.birthday = savedBirthday
         }
-        console.log('savedBirthday ', savedBirthday);
       }
-    },
-    async getMode(query) {
-      if (query) {
-        this.mode = query
+
+      const modeQuery = this.$route.query.m
+      if (modeQuery) {
+        this.mode = modeQuery
       } else {
         const savedMode = await get('mode')
         if (savedMode) {
           this.mode = savedMode
         }
-        console.log('savedMode ', savedMode);
       }
-    },
-    async getYears(query) {
-      if (query) {
-        this.years = query
-        console.log('this.years', this.years);
+      
+      const yearsQuery = this.$route.query.t || this.$route.query.y || this.$route.query.a
+      if (yearsQuery) {
+        this.years = yearsQuery
       } else {
         const savedYears = await get('years')
         if (savedYears) {
           this.years = savedYears
         }
-        console.log('savedYears ', savedYears);
       }
+
+      const savedDark = await get('dark')
+      const savedColored = await get('colored')
+      if (savedDark) {
+        this.dark = savedDark
+      } else {
+        this.dark = false
+      }
+      if (savedColored) {
+        this.colored = savedColored
+      } 
+      this.$q.dark.set(this.dark)
+
+      const savedLocale = await get('locale')
+      if (savedLocale) {
+        this.lang = savedLocale
+      } else {
+        this.lang = 'en'
+      }
+      this.$i18n.locale = this.lang
+      moment.locale(this.lang)
+
+      this.drawCanvas('getSettings')
+      
     },
-    drawCanvas() {
+    drawCanvas(responsible) {
+      console.log('draw from: ', responsible);
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       
       const differenceBetweenDates = (dateBirth, dateNow, unit) => {
@@ -316,7 +344,6 @@ export default {
         case 'w':
           this.total = this.years * 12 * 4
           this.livedUnits = differenceBetweenDates(newDate, birthDate, 'weeks')
-          console.log('lived: ', this.livedUnits);
           break;
         case 'd':
           this.total = this.years * 12 * 4 * 7
@@ -365,6 +392,10 @@ export default {
       const dotRadius = dotDiameter * 0.5;
 
       let count = 0
+      const childhood = this.total * (10/this.years)
+      const teenhood = this.total * (20/this.years)
+      const adulthood = this.total * (45/this.years)
+      const oldhood = this.total * (60/this.years)
 
       for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
@@ -374,24 +405,41 @@ export default {
           // const y = (i * dotDiameter) + this.dotMargin + dotRadius;
           // Grab a random color from the array.
           // const color = this.colors[Math.floor(i % this.colors.length)];
-          let color = '#ffffff'
-          if (count > this.livedUnits) {
-            color = this.colors[0]
-          } else if (count > this.total) {
-            color = '#ffffff'
-          } else {
-            color = this.colors[1]
+          let color = this.colors.black
+          let altColor = this.colors.dimBlack
+          if (this.dark) {
+            color = this.colors.white
+            altColor = this.colors.dimWhite
           }
-          this.drawDot(x, y, dotRadius, color);
+          const isPast = count < this.livedUnits
+          if (this.colored) {
+            if (count < childhood) {
+              color = isPast?this.colors.childhood+'5e':this.colors.childhood
+            } else if (count > childhood - 1 && count < teenhood) {
+              color = isPast?this.colors.teenhood+'5e':this.colors.teenhood
+            } else if (count > teenhood - 1 && count < adulthood) {
+              color = isPast?this.colors.adulthood+'5e':this.colors.adulthood
+            } else if (count > adulthood - 1 && count < oldhood) {
+              color = isPast?this.colors.oldhood+'5e':this.colors.oldhood
+            } else {
+              color = altColor
+            }
+          } else {
+            color = isPast?altColor:color
+          }
+          if (count < this.total) {
+            this.drawDot(x, y, dotRadius, color);
+          }
           count++;
         }
       }
     },
-    resizeCanvas () {
+    resizeCanvas (doNotRender) {
+      console.log('resize: ', doNotRender);
       const maxWidth = 1080;
       this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40;
       this.canvas.height = window.innerHeight - 62;
-      this.debounce(this.drawCanvas(), 1000, false)
+      if (doNotRender!==true) this.drawCanvas('resizeCanvas')
     },
     drawDot (x, y, radius, color) {
       this.context.beginPath();
@@ -427,22 +475,32 @@ export default {
     }
   },
   watch: {
-    birthday(newBday) {
+    birthday(newBday, oldBday) {
+      console.log('newBday: ', newBday, ' oldBday: ', oldBday);
       set('birthday', newBday)
-      this.drawCanvas()
+      this.drawCanvas('birthday')
+    },
+    dark(newDark) {
+      set('dark', newDark)
+      this.$q.dark.set(newDark)
+      this.drawCanvas('dark')
     },
     years(newYears) {
       set('years', newYears)
-      this.drawCanvas()
+      this.drawCanvas('years')
     },
     mode(newMode) {
       set('mode', newMode)
-      this.drawCanvas()
+      this.drawCanvas('mode')
     },
-    $route (to, from) {
-      console.log('from: ', from);
-      console.log('to: ', to);
-    }
+    colored(newColored) {
+      set('colored', newColored)
+      this.drawCanvas('colored')
+    },
+    // $route (to, from) {
+    //   console.log('from: ', from);
+    //   console.log('to: ', to);
+    // }
   }
 };
 </script>
@@ -470,6 +528,7 @@ canvas.dots {
   font-size: 1.1rem;
   user-select: none;
   display: flex;
+  color: black;
   span {
     // padding: 0 0.5rem;
     &.q-btn__content {
@@ -479,6 +538,9 @@ canvas.dots {
       border: 1px solid rgb(41, 41, 41);
       border-radius: 1rem;
     }
+  }
+  &.dark {
+    color: white;
   }
 }
 .patrick {
@@ -518,5 +580,12 @@ canvas.dots {
   position: absolute;
   top: 0.6rem;
   right: 0.6rem;
+}
+
+.menuLabel {
+  color: black;
+  &.dark {
+    color: white;
+  }
 }
 </style>

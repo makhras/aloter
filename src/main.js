@@ -18,10 +18,9 @@ const i18n = createI18n({
   // messages
   messages: {
     es: {
-      slogan: 'Comprende tu repartición de tiempo',
       by: 'Por',
       in: 'en',
-      moreInfo: 'Más Información',
+      darkMode: 'Modo Oscuro',
       english: 'Inglés',
       spanish: 'Español', 
       en: 'Inglés',
@@ -35,13 +34,12 @@ const i18n = createI18n({
       byEmail: 'Eviar Por Email',
       copyLink: 'Copiar Link',
       downloadImage: 'Descargar Imágen',
-      coloredDots: 'Etapas Coloreadas'
+      colors: 'Colores'
     },
     en: {
-      slogan: 'Comprehend your time allottance',
       by: 'By',
       in: 'in',
-      moreInfo: 'More Information',
+      darkMode: 'Dark Mode',
       english: 'English',
       spanish: 'Spanish',
       en: 'English',
@@ -55,7 +53,7 @@ const i18n = createI18n({
       byEmail: 'Send By Email',
       copyLink: 'Copy Link',
       downloadImage: 'Download Image',
-      coloredDots: 'Colored Stages'
+      colors: 'Colors'
     }
   }
 })
