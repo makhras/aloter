@@ -414,21 +414,19 @@ export default {
           const isPast = count < this.livedUnits
           if (this.colored) {
             if (count < childhood) {
-              color = isPast?this.colors.childhood+'5e':this.colors.childhood
+              color = this.colors.childhood
             } else if (count > childhood - 1 && count < teenhood) {
-              color = isPast?this.colors.teenhood+'5e':this.colors.teenhood
+              color = this.colors.teenhood
             } else if (count > teenhood - 1 && count < adulthood) {
-              color = isPast?this.colors.adulthood+'5e':this.colors.adulthood
+              color = this.colors.adulthood
             } else if (count > adulthood - 1 && count < oldhood) {
-              color = isPast?this.colors.oldhood+'5e':this.colors.oldhood
+              color = this.colors.oldhood
             } else {
               color = altColor
             }
-          } else {
-            color = isPast?altColor:color
-          }
+          } 
           if (count < this.total) {
-            this.drawDot(x, y, dotRadius, color);
+            this.drawDot(x, y, dotRadius, color, isPast);
           }
           count++;
         }
@@ -441,11 +439,15 @@ export default {
       this.canvas.height = window.innerHeight - 62;
       if (doNotRender!==true) this.drawCanvas('resizeCanvas')
     },
-    drawDot (x, y, radius, color) {
+    drawDot (x, y, radius, color, isPast) {
       this.context.beginPath();
-      this.context.arc(x, y, radius, 0, 2 * Math.PI, false);
-      this.context.fillStyle = color;
+      this.context.arc(x, y, isPast?radius-1.5:radius-1, 0, 2 * Math.PI, false);
+      this.context.fillStyle = isPast?color + '6b':this.colors.transparent;
+      this.context.strokeStyle = color;
+      this.context.lineWidth = 2;
       this.context.fill();
+      this.context.stroke()
+      this.context
     },
     yearsSelected (years) {
       this.years = years;
