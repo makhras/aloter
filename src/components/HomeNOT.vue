@@ -136,13 +136,15 @@
               </q-item>
             </q-list>
             <q-card-section>
-              {{$t('by')}} Mario Akhras (elmareo)
+              {{$t('by')}} M. Akhras (<a href="https://github.com/makhras/aloter" target="_blank" rel="noopener noreferrer">source</a>)
             </q-card-section>
           </q-card>
         </q-popup-proxy>
       </q-btn>
     </q-toolbar>
-    <canvas id="dots">Your browser does not support canvas.</canvas>
+    <div class="canvas-container">
+      <canvas id="dots">Your browser does not support canvas.</canvas>
+    </div>
     <div class="info">
       {{`${cols} x ${rows}`}}
     </div>
@@ -153,6 +155,7 @@
 import { format, differenceInDays, differenceInWeeks, differenceInMonths, differenceInYears } from 'date-fns'
 import moment from 'moment/min/moment-with-locales'
 import { get, set } from 'idb-keyval'
+import * as PIXI from 'pixi.js'
 // import 'moment/locale/es'
 // import { useQuasar } from 'quasar'
 
@@ -187,6 +190,7 @@ export default {
         firstDayOfWeek: 1
       },
       dark: false,
+      colors: false,
       colored: false,
       total: 0,
       livedUnits: 0,
@@ -223,22 +227,35 @@ export default {
         teenhood: '#14E066',
         adulthood: '#8800FE',
         oldhood: '#F89716',
-        past: '#ffffff70',
-        future: '#ffffffdb',
       },
-      dotMargin: 0,
+      dotMargin: 2,
       rows: 0,
       cols: 0,
       context: null,
+      pixi: null,
+      graphics: null,
     };
   },
   mounted () {
-    this.canvas = document.getElementById('dots');
-    this.context = this.canvas.getContext('2d');
+    this.pixi = new PIXI.Application({ 
+      autoResize: true,
+      antialias: true,
+      resolution: devicePixelRatio 
+    });
+    document.getElementById('dots').appendChild(this.pixi.view);
+    this.graphics = new PIXI.Graphics()
+      .beginFill(0xff0000)
+      .drawRect(0, 0, 200, 200);
+
+    // this.canvas = document.getElementById('dots');
+    // this.context = this.canvas.getContext('2d');
 
     this.resizeCanvas(true)
     this.getSettings()
-    
+
+    this.pixi.stage.addChild(this.graphics);
+
+    // Listen for window resize events    
 
     window.addEventListener('resize', this.resizeCanvas, false);
     
@@ -321,10 +338,13 @@ export default {
       this.$i18n.locale = this.lang
       moment.locale(this.lang)
 
-      //this.drawCanvas('getSettings')
+      this.drawCanvas('getSettings')
       
     },
     drawCanvas(responsible) {
+      console.log('drawingCanvas: ', responsible);
+    },
+    drawCanvasOld(responsible) {
       console.log('draw from: ', responsible);
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       
@@ -414,7 +434,6 @@ export default {
           }
           const isPast = count < this.livedUnits
           if (this.colored) {
-            console.log('----------------------------.count: ', count);
             if (count < childhood) {
               color = this.colors.childhood
             } else if (count > childhood - 1 && count < teenhood) {
@@ -436,21 +455,23 @@ export default {
     },
     resizeCanvas (doNotRender) {
       console.log('resize: ', doNotRender);
-      const maxWidth = 1080;
-      this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40;
-      this.canvas.height = window.innerHeight - 62;
-      if (doNotRender!==true) this.drawCanvas('resizeCanvas')
+      // const maxWidth = 1080;
+      // this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40;
+      // this.canvas.height = window.innerHeight - 62;
+      // if (doNotRender!==true) this.drawCanvas('resizeCanvas')
+      this.pixi.renderer.resize(window.innerWidth, window.innerHeight);
+      // this.graphics.position.set(this.pixi.screen.width, this.pixi.screen.height);
+      console.log('this.pixi.screen.width: ', this.pixi.screen.width);
     },
     drawDot (x, y, radius, color, isPast) {
-      this.context.beginPath();
-      this.context.arc(x, y, isPast?radius-1.5:radius-1, 0, 2 * Math.PI, false);
-      const dotColor = this.context.fillStyle = isPast?this.colors.past:this.colors.future;
-      this.context.fillStyle = dotColor;
-      this.context.strokeStyle = dotColor;
-      this.context.lineWidth = 2;
-      this.context.fill();
-      this.context.stroke()
-      this.context
+      // this.context.beginPath();
+      // this.context.arc(x, y, isPast?radius-1.5:radius-1, 0, 2 * Math.PI, false);
+      // this.context.fillStyle = isPast?color + '6b':this.colors.transparent;
+      // this.context.strokeStyle = color;
+      // this.context.lineWidth = 2;
+      // this.context.fill();
+      // this.context.stroke()
+      // this.context
     },
     yearsSelected (years) {
       this.years = years;
@@ -465,15 +486,14 @@ export default {
       this.$router.replace({query: {...this.$route.query, b: urlifiedBday}})
     },
     debounce (func, wait, immediate) {
-      let timeout;
+      var timeout;
       return function () {
-        const context = this
-        const args = arguments
-        const later = () => {
+        var context = this, args = arguments;
+        var later = function () {
           timeout = null;
           if (!immediate) func.apply(context, args);
         };
-        const callNow = immediate && !timeout;
+        var callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
@@ -593,5 +613,25 @@ canvas.dots {
   &.dark {
     color: white;
   }
+}
+body {
+  margin:0;
+  padding:0;
+  overflow:hidden;
+}
+.canvas-container {
+  position: relative;
+  canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display:block;
+  }
+}
+#dots {
+  width: 100%;
+  height: 100%;
 }
 </style>
