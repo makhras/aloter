@@ -34,7 +34,7 @@ const i18n = createI18n({
       byEmail: 'Eviar Por Email',
       copyLink: 'Copiar Link',
       downloadImage: 'Descargar Imágen',
-      colors: 'Colores'
+      colors: 'Etapas'
     },
     en: {
       by: 'By',
@@ -53,7 +53,7 @@ const i18n = createI18n({
       byEmail: 'Send By Email',
       copyLink: 'Copy Link',
       downloadImage: 'Download Image',
-      colors: 'Colors'
+      colors: 'Stages'
     }
   }
 })

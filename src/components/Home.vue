@@ -22,7 +22,7 @@
             </q-card>
           </q-popup-proxy>
         </q-btn>
-        <span>{{$t('from')}}</span>
+        <span class="text-uppercase">{{$t('from')}}</span>
         <q-btn rounded flat dense size="0.8rem" class="btn">
           {{formattedBirthday}}
           <q-popup-proxy anchor="bottom middle" self="top middle">
@@ -36,7 +36,7 @@
             />
           </q-popup-proxy>
         </q-btn>
-        <span>{{$t('in')}}</span>
+        <span class="text-uppercase">{{$t('in')}}</span>
         <q-btn rounded flat dense size="0.8rem" class="btn modeBtn">
           {{modeLabel}}
           <q-popup-proxy anchor="bottom middle" self="top middle">
@@ -136,7 +136,7 @@
               </q-item>
             </q-list>
             <q-card-section>
-              {{$t('by')}} Mario Akhras (elmareo)
+              {{ new Date().getFullYear() }} &copy; Mario Akhras
             </q-card-section>
           </q-card>
         </q-popup-proxy>
@@ -206,10 +206,10 @@ export default {
           id: 'w',
           label: 'weeks'
         },
-        {
-          id: 'd',
-          label: 'days'
-        },
+        // {
+        //   id: 'd',
+        //   label: 'days'
+        // },
       ],
       years: 80,
       allYears: [10, 20, 30, 40, 50, 60, 70, 80, 90],
@@ -320,12 +320,9 @@ export default {
       }
       this.$i18n.locale = this.lang
       moment.locale(this.lang)
-
-      //this.drawCanvas('getSettings')
       
     },
-    drawCanvas(responsible) {
-      console.log('draw from: ', responsible);
+    drawCanvas() {
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
       
       const differenceBetweenDates = (dateBirth, dateNow, unit) => {
@@ -346,10 +343,10 @@ export default {
           this.total = this.years * 12 * 4
           this.livedUnits = differenceBetweenDates(newDate, birthDate, 'weeks')
           break;
-        case 'd':
-          this.total = this.years * 12 * 4 * 7
-          this.livedUnits = differenceBetweenDates(newDate, birthDate, 'days')
-          break;
+        // case 'd':
+        //   this.total = this.years * 12 * 4 * 7
+        //   this.livedUnits = differenceBetweenDates(newDate, birthDate, 'days')
+        //   break;
         case 'a':
         case 'y':
         case 't':
@@ -382,15 +379,15 @@ export default {
       let dotDiameter = 1;
 
       if( dotWidth > dotHeight ) {
-        dotDiameter = dotHeight;
-        xMargin = (this.canvas.width - ((2 * this.dotMargin) + (this.cols * dotDiameter))) / this.cols;
-        yMargin = this.dotMargin;
+        dotDiameter = dotHeight
+        xMargin = (this.canvas.width - ((2 * this.dotMargin) + (this.cols * dotDiameter))) / this.cols
+        yMargin = this.dotMargin
       } else {
-        dotDiameter = dotWidth;
-        xMargin = this.dotMargin;
-        yMargin = (this.canvas.height - ((2 * this.dotMargin) + (this.rows * dotDiameter))) / this.rows;
+        dotDiameter = dotWidth
+        xMargin = this.dotMargin
+        yMargin = (this.canvas.height - ((2 * this.dotMargin) + (this.rows * dotDiameter))) / this.rows
       }
-      const dotRadius = dotDiameter * 0.5;
+      const dotRadius = dotDiameter * 0.5
 
       let count = 0
       const childhood = this.total * (10/this.years)
@@ -400,8 +397,8 @@ export default {
 
       for(let i = 0; i < this.rows; i++) {
         for(let j = 0; j < this.cols; j++) {
-          const x = (j * (dotDiameter + xMargin)) + this.dotMargin + (xMargin / 2) + dotRadius;
-          const y = (i * (dotDiameter + yMargin)) + this.dotMargin + (yMargin / 2) + dotRadius;
+          const x = (j * (dotDiameter + xMargin)) + this.dotMargin + (xMargin / 2) + dotRadius
+          const y = (i * (dotDiameter + yMargin)) + this.dotMargin + (yMargin / 2) + dotRadius
           // const x = (j * dotDiameter) + this.dotMargin + dotRadius;
           // const y = (i * dotDiameter) + this.dotMargin + dotRadius;
           // Grab a random color from the array.
@@ -411,10 +408,11 @@ export default {
           if (this.dark) {
             color = this.colors.white
             altColor = this.colors.dimWhite
+          } else {
+            
           }
           const isPast = count < this.livedUnits
           if (this.colored) {
-            console.log('----------------------------.count: ', count);
             if (count < childhood) {
               color = this.colors.childhood
             } else if (count > childhood - 1 && count < teenhood) {
@@ -428,6 +426,7 @@ export default {
             }
           } 
           if (count < this.total) {
+            console.log('color: ', color);
             this.drawDot(x, y, dotRadius, color, isPast);
           }
           count++;
@@ -435,20 +434,18 @@ export default {
       }
     },
     resizeCanvas (doNotRender) {
-      console.log('resize: ', doNotRender);
-      const maxWidth = 1080;
-      this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40;
-      this.canvas.height = window.innerHeight - 62;
+      const maxWidth = 1080
+      this.canvas.width = window.innerWidth > maxWidth ? maxWidth : window.innerWidth - 40
+      this.canvas.height = window.innerHeight - 62
       if (doNotRender!==true) this.drawCanvas('resizeCanvas')
     },
     drawDot (x, y, radius, color, isPast) {
       this.context.beginPath();
-      this.context.arc(x, y, isPast?radius-1.5:radius-1, 0, 2 * Math.PI, false);
-      const dotColor = this.context.fillStyle = isPast?this.colors.past:this.colors.future;
-      this.context.fillStyle = dotColor;
-      this.context.strokeStyle = dotColor;
-      this.context.lineWidth = 2;
-      this.context.fill();
+      this.context.arc(x, y, isPast?radius-1.5:radius-1, 0, 2 * Math.PI, false)
+      this.context.fillStyle = isPast?color+'60':color
+      this.context.strokeStyle = isPast?color+'40':this.colors.transparent
+      this.context.lineWidth = 2
+      this.context.fill()
       this.context.stroke()
       this.context
     },
@@ -484,24 +481,24 @@ export default {
     birthday(newBday, oldBday) {
       console.log('newBday: ', newBday, ' oldBday: ', oldBday);
       set('birthday', newBday)
-      this.drawCanvas('birthday')
+      this.drawCanvas()
     },
     dark(newDark) {
       set('dark', newDark)
       this.$q.dark.set(newDark)
-      this.drawCanvas('dark')
+      this.drawCanvas()
     },
     years(newYears) {
       set('years', newYears)
-      this.drawCanvas('years')
+      this.drawCanvas()
     },
     mode(newMode) {
       set('mode', newMode)
-      this.drawCanvas('mode')
+      this.drawCanvas()
     },
     colored(newColored) {
       set('colored', newColored)
-      this.drawCanvas('colored')
+      this.drawCanvas()
     },
     // $route (to, from) {
     //   console.log('from: ', from);
@@ -530,6 +527,7 @@ canvas.dots {
 
 .menubar {
   margin: auto;
+  align-items: center;
   font-family: $patrick-hand;
   font-size: 1.1rem;
   user-select: none;
