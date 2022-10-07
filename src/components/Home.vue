@@ -3,7 +3,7 @@
     <q-toolbar class="bg-transparent">
       <div :class="dark?'menubar dark':'menubar'">
         <q-btn rounded flat dense size="0.8rem" class="btn">
-          {{`${years} ${$t('years')}`}}
+          {{`${years} ${$t('years')}`}}!
           <q-popup-proxy fit anchor="bottom left" self="top left" >
             <q-card>
               <q-list>
